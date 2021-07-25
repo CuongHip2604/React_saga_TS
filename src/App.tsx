@@ -1,56 +1,53 @@
 import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
+import { Redirect, Route, Router, Switch } from 'react-router-dom';
+import history from 'router/history';
+import { ACCESS_TOKEN } from 'shared/plugins/constants';
+
+const loading = (
+  <div className="pt-3 text-center">
+    <div className="sk-spinner sk-spinner-pulse"></div>
+  </div>
+);
+
+const Login = React.lazy(() => import('modules/auth/pages/Login'));
+const Register = React.lazy(() => import('modules/auth/pages/Register'));
+const TheLayout = React.lazy(() => import('shared/containers/TheLayout'));
 
 function App() {
+  const handleRedirec = () => {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    if (!token) return false;
+    return true;
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
+    <div className="app">
+      <Router history={history}>
+        <React.Suspense fallback={loading}>
+          <Switch>
+            <Route
+              exact
+              path="/login"
+              render={() => {
+                return handleRedirec() ? <Redirect to="/" /> : <Login />;
+              }}
+            />
+            <Route
+              exact
+              path="/register"
+              render={() => {
+                return handleRedirec() ? <Redirect to="/" /> : <Register />;
+              }}
+            />
+            <Route
+              path="/"
+              render={() => {
+                return handleRedirec() ? <TheLayout /> : <Redirect to="/login" />;
+              }}
+            />
+          </Switch>
+        </React.Suspense>
+      </Router>
     </div>
   );
 }
